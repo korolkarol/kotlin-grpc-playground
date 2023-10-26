@@ -1,0 +1,43 @@
+syntax = "proto3";
+package com.karolkorol.grpc.product;
+option java_outer_classname = "ProductServiceProto";
+option java_multiple_files = true;
+
+service ProductService {
+  rpc Get (GetProductRequest) returns (stream GetProductResponse) {}
+}
+
+message GetProductRequest {
+  string eam = 1;
+}
+
+message GetProductResponse {
+  oneof product_data {
+    ProductInfo productInfo = 1;
+    ProductPrice productPrice = 2;
+    ProductStock productStock = 3;
+  }
+}
+
+message ProductInfo {
+  string ean = 1;
+  string mdk = 2;
+  repeated string sizes = 3;
+}
+
+message ProductPrice {
+  double currentPrice = 1;
+  double previousPrice = 2;
+  string priceType = 3;
+  string currency = 4;
+  string formattedCurrentPrice = 10;
+  string formattedPreviousPrice = 11;
+}
+
+message ProductStock {
+  message SizeStock {
+    string size = 1;
+    int32 stock = 2;
+  }
+  repeated SizeStock sizesStock = 1;
+}
