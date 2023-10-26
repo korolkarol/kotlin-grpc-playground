@@ -4,11 +4,11 @@ option java_outer_classname = "ProductServiceProto";
 option java_multiple_files = true;
 
 service ProductService {
-  rpc Get (GetProductRequest) returns (stream GetProductResponse) {}
+  rpc GetProduct (GetProductRequest) returns (stream GetProductResponse) {}
 }
 
 message GetProductRequest {
-  string eam = 1;
+  string ean = 1;
 }
 
 message GetProductResponse {

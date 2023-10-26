@@ -18,7 +18,7 @@ import java.text.DecimalFormat
 import kotlin.random.Random
 
 class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
-    override fun get(request: GetProductRequest): Flow<GetProductResponse> = channelFlow {
+    override fun getProduct(request: GetProductRequest): Flow<GetProductResponse> = channelFlow {
         val productInfo = sendAndReturnProductInfoAsync(request)
         sendProductPrice(productInfo)
     }
@@ -39,7 +39,7 @@ class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
     private fun ProducerScope<GetProductResponse>.sendAndReturnProductInfoAsync(request: GetProductRequest) =
         async {
             delay(Random.nextLong(10, 150))
-            val info = products.firstOrNull { it.ean == request.eam } ?: productInfo {}
+            val info = products.firstOrNull { it.ean == request.ean } ?: productInfo {}
             send(
                 getProductResponse {
                     productInfo = info

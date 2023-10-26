@@ -12,9 +12,9 @@ class ProductClient(private val channel: ManagedChannel) : Closeable {
     private val stub = ProductServiceGrpcKt.ProductServiceCoroutineStub(channel)
 
     suspend fun getProduct(eanValue: String) {
-        stub.get(
+        stub.getProduct(
             getProductRequest {
-                eam = eanValue
+                ean = eanValue
             }
         ).collect {
             println(it)
