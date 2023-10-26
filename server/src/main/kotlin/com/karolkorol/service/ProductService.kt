@@ -4,9 +4,11 @@ import com.karolkorol.grpc.product.GetProductRequest
 import com.karolkorol.grpc.product.GetProductResponse
 import com.karolkorol.grpc.product.ProductInfo
 import com.karolkorol.grpc.product.ProductServiceGrpcKt
+import com.karolkorol.grpc.product.ProductStockKt.sizeStock
 import com.karolkorol.grpc.product.getProductResponse
 import com.karolkorol.grpc.product.productInfo
 import com.karolkorol.grpc.product.productPrice
+import com.karolkorol.grpc.product.productStock
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ProducerScope
@@ -21,7 +23,20 @@ class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
     override fun getProduct(request: GetProductRequest): Flow<GetProductResponse> = channelFlow {
         val productInfo = sendAndReturnProductInfoAsync(request)
         sendProductPrice(productInfo)
+        sendProductStock(productInfo)
     }
+
+    private fun ProducerScope<GetProductResponse>.sendAndReturnProductInfoAsync(request: GetProductRequest) =
+        async {
+            delay(Random.nextLong(10, 150))
+            val info = products.firstOrNull { it.ean == request.ean } ?: productInfo {}
+            send(
+                getProductResponse {
+                    productInfo = info
+                }
+            )
+            return@async info
+        }
 
     private fun ProducerScope<GetProductResponse>.sendProductPrice(
         productInfo: Deferred<ProductInfo>,
@@ -36,17 +51,23 @@ class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
         }
     }
 
-    private fun ProducerScope<GetProductResponse>.sendAndReturnProductInfoAsync(request: GetProductRequest) =
-        async {
-            delay(Random.nextLong(10, 150))
-            val info = products.firstOrNull { it.ean == request.ean } ?: productInfo {}
-            send(
-                getProductResponse {
-                    productInfo = info
+    private fun ProducerScope<GetProductResponse>.sendProductStock(
+        productInfo: Deferred<ProductInfo>,
+    ) {
+        launch {
+            delay(Random.nextLong(500, 2500))
+            getProductResponse {
+                productStock = productStock {
+                    sizesStock += productInfo.await().sizesList.map {
+                        sizeStock {
+                            size = it
+                            stock = Random.nextInt(0, 25)
+                        }
+                    }
                 }
-            )
-            return@async info
+            }.let { send(it) }
         }
+    }
 
     companion object {
         const val PLN = "PLN"

@@ -1,5 +1,6 @@
 package com.karolkorol
 
+import com.karolkorol.grpc.product.GetProductResponse
 import com.karolkorol.grpc.product.ProductServiceGrpcKt
 import com.karolkorol.grpc.product.getProductRequest
 import io.grpc.ManagedChannel
@@ -12,13 +13,34 @@ class ProductClient(private val channel: ManagedChannel) : Closeable {
     private val stub = ProductServiceGrpcKt.ProductServiceCoroutineStub(channel)
 
     suspend fun getProduct(eanValue: String) {
+        val msgs = mutableListOf<String>()
         stub.getProduct(
             getProductRequest {
                 ean = eanValue
             }
-        ).collect {
-            println(it)
+        ).collect { response ->
+            println(response)
+
+            when (response.productDataCase) {
+                GetProductResponse.ProductDataCase.PRODUCTSTOCK -> {
+                    response.productStock.sizesStockList
+                        .filter { it.stock == 0 }
+                        .map { "size ${it.size} is not in stock!" }
+                        .onEach { msgs.add(it) }
+                }
+
+                GetProductResponse.ProductDataCase.PRODUCTPRICE -> {
+                    response.productPrice.currency.takeIf { it == "PLN" }
+                        ?.let { msgs.add("currency is PLN") }
+                }
+
+                else -> {}
+            }
         }
+
+        msgs.joinToString(separator = "\n") { "\t* $it" }
+            .takeIf { it.isNotEmpty() }
+            ?.let { println("Messages:\n $it") }
     }
 
     override fun close() {
