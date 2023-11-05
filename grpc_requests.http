@@ -1,0 +1,22 @@
+### get all cities
+GRPC localhost:50052/com.karolkorol.grpc.countries.CountriesService/GetCity
+
+{
+  "all": "ALL"
+}
+
+### get city by name
+GRPC localhost:50052/com.karolkorol.grpc.countries.CountriesService/GetCity
+
+{
+  "byName": "Gdansk"
+}
+
+### get country
+GRPC localhost:50052/com.karolkorol.grpc.countries.CountriesService/GetCountry
+
+{
+  "byName": "Poland"
+}
+
+###

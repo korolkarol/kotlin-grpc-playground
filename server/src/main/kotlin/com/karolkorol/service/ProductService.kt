@@ -17,9 +17,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.text.DecimalFormat
 import kotlin.random.Random
 
+@Service
 class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
     private val logger = LoggerFactory.getLogger(javaClass)
     override fun getProduct(request: GetProductRequest): Flow<GetProductResponse> = channelFlow {

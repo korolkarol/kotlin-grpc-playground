@@ -1,0 +1,41 @@
+syntax = "proto3";
+package com.karolkorol.grpc.countries;
+option java_outer_classname = "CountriesServiceProto";
+option java_multiple_files = true;
+
+service CountriesService {
+  rpc GetCountry (GetCountryRequest) returns (stream GetCountryResponse) {}
+  rpc GetCity (GetCityRequest) returns (stream GetCityResponse) {}
+}
+
+message GetCountryRequest {
+  oneof country_filter {
+    string byName = 1;
+    string byCode = 2;
+  }
+}
+
+enum All {
+  ALL = 0;
+}
+
+message GetCountryResponse {
+  string name = 1;
+  string code = 2;
+  string population = 3;
+  string cities = 4;
+}
+
+message GetCityRequest {
+  oneof city_filter {
+    string byName = 1;
+    string byCode = 2;
+    All all = 3;
+  }
+}
+
+message GetCityResponse {
+  string name = 1;
+  string countryCode = 2;
+  string population = 3;
+}

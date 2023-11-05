@@ -1,5 +1,6 @@
 package com.karolkorol
 
+import com.karolkorol.service.CountryService
 import com.karolkorol.service.ProductService
 import io.grpc.Server
 import io.grpc.ServerBuilder
@@ -25,12 +26,15 @@ open class GrpcServerApplicationRunner(
 @Component
 class GrpcServer(
     @Value("\${grpc.server.port}") private val port: Int,
+    productService: ProductService,
+    countryService: CountryService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val server: Server = ServerBuilder
         .forPort(port)
-        .addService(ProductService())
+        .addService(productService)
+        .addService(countryService)
         .build()
 
     fun start() {
