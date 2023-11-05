@@ -16,11 +16,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import java.text.DecimalFormat
 import kotlin.random.Random
 
 class ProductService : ProductServiceGrpcKt.ProductServiceCoroutineImplBase() {
+    private val logger = LoggerFactory.getLogger(javaClass)
     override fun getProduct(request: GetProductRequest): Flow<GetProductResponse> = channelFlow {
+        logger.info("GetProductRequest: $request")
         val productInfo = sendAndReturnProductInfoAsync(request)
         sendProductPrice(productInfo)
         sendProductStock(productInfo)

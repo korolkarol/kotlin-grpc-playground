@@ -3,8 +3,31 @@ package com.karolkorol
 import com.karolkorol.service.ProductService
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.CommandLineRunner
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.stereotype.Component
 
-class GrpcServer(private val port: Int) {
+
+@SpringBootApplication
+open class GrpcServerApplicationRunner(
+    private val grpcServer: GrpcServer,
+) : CommandLineRunner {
+
+    override fun run(vararg args: String?) {
+        grpcServer.start()
+        grpcServer.blockUntilShutdown()
+    }
+}
+
+@Component
+class GrpcServer(
+    @Value("\${grpc.server.port}") private val port: Int,
+) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     val server: Server = ServerBuilder
         .forPort(port)
         .addService(ProductService())
@@ -12,12 +35,12 @@ class GrpcServer(private val port: Int) {
 
     fun start() {
         server.start()
-        println("Server started, listening on $port")
+        logger.info("Server started, listening on $port")
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                println("*** shutting down gRPC server since JVM is shutting down")
+                logger.info("shutting down gRPC server since JVM is shutting down")
                 this@GrpcServer.stop()
-                println("*** server shut down")
+                logger.info("server shut down")
             }
         )
     }
@@ -32,9 +55,6 @@ class GrpcServer(private val port: Int) {
 
 }
 
-fun main() {
-    val port = System.getenv("PORT")?.toInt() ?: 50052
-    val server = GrpcServer(port)
-    server.start()
-    server.blockUntilShutdown()
+fun main(vararg args: String) {
+    runApplication<GrpcServerApplicationRunner>(*args)
 }

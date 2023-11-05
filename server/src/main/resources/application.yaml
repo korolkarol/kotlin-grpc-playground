@@ -1,0 +1,9 @@
+grpc:
+  server:
+    port: 50052
+
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/world-db
+    username: world
+    password: world123
